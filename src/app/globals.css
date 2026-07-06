@@ -1,0 +1,95 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: 248 250 252;
+  --surface: 255 255 255;
+  --surface-2: 241 245 249;
+  --border: 226 232 240;
+  --fg: 15 23 42;
+  --muted: 100 116 139;
+  --brand: 79 70 229;
+  --brand-fg: 255 255 255;
+}
+
+.dark {
+  --bg: 9 11 20;
+  --surface: 20 24 38;
+  --surface-2: 30 35 52;
+  --border: 44 51 74;
+  --fg: 226 232 240;
+  --muted: 148 163 184;
+  --brand: 129 120 255;
+  --brand-fg: 12 14 24;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background-color: rgb(var(--bg));
+  color: rgb(var(--fg));
+  -webkit-font-smoothing: antialiased;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(var(--border)) transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: rgb(var(--border));
+  border-radius: 999px;
+}
+
+@layer components {
+  .card {
+    @apply bg-surface border border-border rounded-xl;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors disabled:opacity-50 disabled:pointer-events-none;
+  }
+  .btn-primary {
+    @apply btn bg-brand text-brand-fg hover:opacity-90;
+  }
+  .btn-ghost {
+    @apply btn text-fg hover:bg-surface-2;
+  }
+  .btn-outline {
+    @apply btn border border-border text-fg hover:bg-surface-2;
+  }
+  .input {
+    @apply w-full bg-surface border border-border rounded-lg px-3 py-2 text-sm text-fg placeholder:text-muted outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand;
+  }
+  .label {
+    @apply block text-xs font-medium text-muted mb-1;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-full border border-border px-2.5 py-1 text-xs font-medium transition-colors;
+  }
+  .chip-active {
+    @apply bg-brand text-brand-fg border-brand;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.18s ease-out;
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

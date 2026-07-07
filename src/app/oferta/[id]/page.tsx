@@ -24,6 +24,7 @@ import { WorkflowChecklist } from "@/components/WorkflowChecklist";
 import { StatusBadge, Thumb, ScoreRing, fmtDate, fmtRelative } from "@/components/ui";
 import { IconBack, IconEdit, IconCopy, IconTrash, IconLink, IconStar } from "@/components/icons";
 import { AdChecksChart } from "@/components/AdChecksChart";
+import { fileToDataUrl, fileToResizedDataUrl } from "@/lib/image";
 
 export default function OfferDetailPage({
   params,
@@ -45,8 +46,10 @@ export default function OfferDetailPage({
 
   const [editOpen, setEditOpen] = useState(false);
   const [confirmDel, setConfirmDel] = useState(false);
+  const [thumbDragOver, setThumbDragOver] = useState(false);
   const submitRef = useRef<() => void>(() => {});
   const fileRef = useRef<HTMLInputElement>(null);
+  const thumbInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     init();
@@ -85,6 +88,14 @@ export default function OfferDetailPage({
   async function handleEdit(draft: OfferDraft) {
     await updateOffer(offer!.id, draft as Partial<Offer>);
     setEditOpen(false);
+  }
+
+  async function setThumbnailFromFile(file: File | null) {
+    if (!file || !file.type.startsWith("image/")) return;
+    const dataUrl = await fileToResizedDataUrl(file);
+    await updateOffer(offer!.id, { thumbnailUrl: dataUrl }, "Imagem atualizada");
+    setThumbDragOver(false);
+    if (thumbInputRef.current) thumbInputRef.current.value = "";
   }
 
   async function handleAddAttachment(e: React.ChangeEvent<HTMLInputElement>) {
@@ -158,7 +169,42 @@ export default function OfferDetailPage({
           <div className="space-y-5">
             {/* Header da oferta */}
             <div className="card overflow-hidden">
-              <Thumb src={offer.thumbnailUrl} alt={offer.name} className="aspect-[2/1]" />
+              <div
+                className={`group/thumb relative ${thumbDragOver ? "ring-2 ring-brand ring-inset" : ""}`}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setThumbDragOver(true);
+                }}
+                onDragLeave={() => setThumbDragOver(false)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  const f = Array.from(e.dataTransfer.files).find((x) =>
+                    x.type.startsWith("image/"),
+                  );
+                  void setThumbnailFromFile(f ?? null);
+                }}
+              >
+                <Thumb src={offer.thumbnailUrl} alt={offer.name} className="aspect-[2/1]" />
+                <button
+                  type="button"
+                  className="absolute bottom-2 right-2 rounded-md bg-black/55 px-2.5 py-1 text-xs font-medium text-white opacity-0 backdrop-blur transition-opacity hover:bg-black/70 group-hover/thumb:opacity-100"
+                  onClick={() => thumbInputRef.current?.click()}
+                >
+                  {offer.thumbnailUrl ? "Trocar imagem" : "+ Adicionar imagem"}
+                </button>
+                <input
+                  ref={thumbInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => void setThumbnailFromFile(e.target.files?.[0] ?? null)}
+                />
+                {thumbDragOver && (
+                  <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-brand/20 text-sm font-semibold text-white">
+                    Solte a imagem aqui
+                  </div>
+                )}
+              </div>
               <div className="p-4">
                 <div className="flex flex-wrap items-center gap-2">
                   <StatusBadge status={offer.status} />
@@ -489,11 +535,3 @@ function AddCheckButton({
   );
 }
 
-function fileToDataUrl(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}

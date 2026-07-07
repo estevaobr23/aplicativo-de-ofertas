@@ -115,6 +115,9 @@ export default function DashboardPage() {
             onDuplicate={(o) => duplicateOffer(o.id)}
             onDelete={setConfirmDelete}
             onTogglePin={togglePin}
+            onSetThumbnail={(o, dataUrl) =>
+              updateOffer(o.id, { thumbnailUrl: dataUrl }, "Imagem atualizada")
+            }
           />
         ) : view === "lista" ? (
           <ListView

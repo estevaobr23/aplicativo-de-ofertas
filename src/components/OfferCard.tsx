@@ -1,8 +1,10 @@
 "use client";
 
+import { useRef, useState } from "react";
 import Link from "next/link";
 import type { Offer } from "@/lib/types";
 import { PLATFORM_LABELS } from "@/lib/types";
+import { fileToResizedDataUrl, imageFileFromDrop } from "@/lib/image";
 import {
   StatusBadge,
   CreativeBadge,
@@ -19,29 +21,84 @@ export function OfferCard({
   onDuplicate,
   onDelete,
   onTogglePin,
+  onSetThumbnail,
 }: {
   offer: Offer;
   onEdit: () => void;
   onDuplicate: () => void;
   onDelete: () => void;
   onTogglePin: () => void;
+  onSetThumbnail: (dataUrl: string) => void;
 }) {
+  const [dragOver, setDragOver] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  async function applyFile(file: File | null) {
+    if (!file) return;
+    setBusy(true);
+    try {
+      const dataUrl = await fileToResizedDataUrl(file);
+      onSetThumbnail(dataUrl);
+    } finally {
+      setBusy(false);
+      setDragOver(false);
+    }
+  }
+
   return (
     <div className="card group flex flex-col overflow-hidden transition-shadow hover:shadow-lg">
-      <Link href={`/oferta/${offer.id}`} className="relative block">
-        <Thumb src={offer.thumbnailUrl} alt={offer.name} className="aspect-video" />
-        <div className="absolute left-2 top-2">
+      <div
+        className={`relative block ${dragOver ? "ring-2 ring-brand ring-inset" : ""}`}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDragOver(true);
+        }}
+        onDragLeave={() => setDragOver(false)}
+        onDrop={(e) => {
+          e.preventDefault();
+          void applyFile(imageFileFromDrop(e));
+        }}
+      >
+        <Link href={`/oferta/${offer.id}`} className="block">
+          <Thumb src={offer.thumbnailUrl} alt={offer.name} className="aspect-video" />
+        </Link>
+        <div className="pointer-events-none absolute left-2 top-2">
           <StatusBadge status={offer.status} />
         </div>
-        <div className="absolute right-2 top-2 rounded-full bg-black/50 p-0.5 backdrop-blur">
+        <div className="pointer-events-none absolute right-2 top-2 rounded-full bg-black/50 p-0.5 backdrop-blur">
           <ScoreRing score={offer.score} size={38} />
         </div>
         {offer.priorityPinned && (
-          <div className="absolute bottom-2 right-2 rounded-full bg-brand p-1 text-brand-fg">
+          <div className="pointer-events-none absolute bottom-2 right-2 rounded-full bg-brand p-1 text-brand-fg">
             <IconStar width={13} height={13} fill="currentColor" />
           </div>
         )}
-      </Link>
+
+        {/* Botão discreto para escolher arquivo (alternativa ao arrastar) */}
+        <button
+          type="button"
+          className="absolute bottom-2 left-2 rounded-md bg-black/55 px-2 py-1 text-[11px] font-medium text-white opacity-0 backdrop-blur transition-opacity hover:bg-black/70 group-hover:opacity-100"
+          onClick={() => inputRef.current?.click()}
+          title="Trocar imagem"
+        >
+          {offer.thumbnailUrl ? "Trocar imagem" : "+ Imagem"}
+        </button>
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => void applyFile(e.target.files?.[0] ?? null)}
+        />
+
+        {/* Overlay ao arrastar por cima */}
+        {(dragOver || busy) && (
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-brand/20 text-sm font-semibold text-white backdrop-blur-[1px]">
+            {busy ? "Salvando…" : "Solte a imagem aqui"}
+          </div>
+        )}
+      </div>
 
       <div className="flex flex-1 flex-col p-3">
         <Link href={`/oferta/${offer.id}`} className="hover:text-brand">

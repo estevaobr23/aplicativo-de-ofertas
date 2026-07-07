@@ -9,12 +9,14 @@ export function GridView({
   onDuplicate,
   onDelete,
   onTogglePin,
+  onSetThumbnail,
 }: {
   offers: Offer[];
   onEdit: (o: Offer) => void;
   onDuplicate: (o: Offer) => void;
   onDelete: (o: Offer) => void;
   onTogglePin: (o: Offer) => void;
+  onSetThumbnail: (o: Offer, dataUrl: string) => void;
 }) {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -26,6 +28,7 @@ export function GridView({
           onDuplicate={() => onDuplicate(o)}
           onDelete={() => onDelete(o)}
           onTogglePin={() => onTogglePin(o)}
+          onSetThumbnail={(dataUrl) => onSetThumbnail(o, dataUrl)}
         />
       ))}
     </div>

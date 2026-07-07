@@ -124,7 +124,19 @@ export type OfferDraft = Omit<
   "id" | "createdAt" | "updatedAt" | "history" | "adChecks" | "score"
 > & {
   attachments?: Attachment[];
+  /**
+   * Contagem inicial de anúncios ativos informada no cadastro. Vira o primeiro
+   * registro de adChecks (source "manual"). Não é um campo persistido do Offer.
+   */
+  activeAds?: number;
 };
+
+/** Número de anúncios ativos = última verificação registrada (ou 0). */
+export function activeAdsOf(offer: Pick<Offer, "adChecks">): number {
+  const checks = offer.adChecks ?? [];
+  if (checks.length === 0) return 0;
+  return [...checks].sort((a, b) => a.at - b.at)[checks.length - 1].activeAds;
+}
 
 export const CREATIVE_TYPE_LABELS: Record<CreativeType, string> = {
   video: "Vídeo",

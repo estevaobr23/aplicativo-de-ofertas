@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useStore, selectFilteredOffers } from "@/lib/store";
 import type { Offer, OfferDraft } from "@/lib/types";
+import { activeAdsOf } from "@/lib/types";
 import { AppHeader } from "@/components/AppHeader";
 import { FilterBar } from "@/components/FilterBar";
 import { RemindersBanner } from "@/components/RemindersBanner";
@@ -29,6 +30,7 @@ export default function DashboardPage() {
     duplicateOffer,
     deleteOffer,
     setStatus,
+    addAdCheck,
   } = useStore();
 
   const [formOpen, setFormOpen] = useState(false);
@@ -56,8 +58,16 @@ export default function DashboardPage() {
   }
 
   async function handleSubmit(draft: OfferDraft) {
-    if (editing) await updateOffer(editing.id, draft as Partial<Offer>);
-    else await createOffer(draft);
+    if (editing) {
+      const { activeAds, ...rest } = draft;
+      await updateOffer(editing.id, rest as Partial<Offer>);
+      // Se mudou a contagem de anúncios ativos na edição, registra verificação.
+      if (activeAds != null && activeAds >= 0 && activeAds !== activeAdsOf(editing)) {
+        await addAdCheck(editing.id, activeAds, "manual");
+      }
+    } else {
+      await createOffer(draft);
+    }
     setFormOpen(false);
     setEditing(null);
   }

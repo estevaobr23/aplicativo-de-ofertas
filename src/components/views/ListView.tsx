@@ -5,11 +5,11 @@ import type { Offer } from "@/lib/types";
 import {
   StatusBadge,
   CreativeBadge,
-  ScoreRing,
+  ActiveAdsRing,
   Thumb,
   fmtRelative,
 } from "../ui";
-import { LP_LABELS } from "@/lib/types";
+import { LP_LABELS, activeAdsOf } from "@/lib/types";
 import { IconEdit, IconCopy, IconTrash, IconStar } from "../icons";
 
 export function ListView({
@@ -36,7 +36,7 @@ export function ListView({
               <th className="px-3 py-3 font-medium">Criativo</th>
               <th className="px-3 py-3 font-medium">LP</th>
               <th className="px-3 py-3 font-medium">Tags</th>
-              <th className="px-3 py-3 text-center font-medium">Score</th>
+              <th className="px-3 py-3 text-center font-medium">Anúncios</th>
               <th className="px-3 py-3 font-medium">Salva</th>
               <th className="px-3 py-3 text-right font-medium">Ações</th>
             </tr>
@@ -88,7 +88,7 @@ export function ListView({
                 </td>
                 <td className="px-3 py-2.5">
                   <div className="flex justify-center">
-                    <ScoreRing score={o.score} size={34} />
+                    <ActiveAdsRing count={activeAdsOf(o)} size={34} />
                   </div>
                 </td>
                 <td className="whitespace-nowrap px-3 py-2.5 text-xs text-muted">

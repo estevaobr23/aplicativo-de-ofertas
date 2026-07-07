@@ -18,6 +18,7 @@ import {
   STATUS_LABELS,
   OFFER_STATUSES,
 } from "@/lib/types";
+import { activeAdsOf } from "@/lib/types";
 import { useStore } from "@/lib/store";
 import { extractLinkMetadata, findSimilar } from "@/lib/aiService";
 import { IconSparkles, IconLink, IconAlert } from "./icons";
@@ -41,6 +42,7 @@ const empty: OfferDraft = {
   priorityPinned: false,
   originalDate: "",
   attachments: [],
+  activeAds: 0,
 };
 
 export function OfferForm({
@@ -155,6 +157,25 @@ export function OfferForm({
         {extractNote && (
           <p className="mt-1 text-xs text-muted">{extractNote}</p>
         )}
+      </div>
+
+      {/* Anúncios ativos — informação principal, logo de cara */}
+      <div className="rounded-lg border border-brand/30 bg-brand/5 p-3">
+        <label className="label !text-brand">🔥 Anúncios ativos escalados</label>
+        <div className="flex items-center gap-2">
+          <input
+            type="number"
+            min={0}
+            className="input !w-28 text-lg font-bold"
+            value={draft.activeAds ?? 0}
+            onChange={(e) =>
+              set("activeAds", Math.max(0, parseInt(e.target.value, 10) || 0))
+            }
+          />
+          <span className="text-sm text-muted">
+            quantos anúncios desta oferta estão ativos agora
+          </span>
+        </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -411,6 +432,7 @@ function toDraft(o: Offer): OfferDraft {
     priorityPinned: o.priorityPinned,
     originalDate: o.originalDate ?? "",
     attachments: o.attachments,
+    activeAds: activeAdsOf(o),
   };
 }
 

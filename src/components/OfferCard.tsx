@@ -3,13 +3,14 @@
 import { useRef, useState } from "react";
 import Link from "next/link";
 import type { Offer } from "@/lib/types";
-import { PLATFORM_LABELS } from "@/lib/types";
+import { PLATFORM_LABELS, activeAdsOf } from "@/lib/types";
 import { fileToResizedDataUrl, imageFileFromDrop } from "@/lib/image";
 import {
   StatusBadge,
   CreativeBadge,
   LpBadge,
-  ScoreRing,
+  ActiveAdsRing,
+  ActiveAdsBadge,
   Thumb,
   fmtRelative,
 } from "./ui";
@@ -33,6 +34,7 @@ export function OfferCard({
   const [dragOver, setDragOver] = useState(false);
   const [busy, setBusy] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const ads = activeAdsOf(offer);
 
   async function applyFile(file: File | null) {
     if (!file) return;
@@ -67,7 +69,7 @@ export function OfferCard({
           <StatusBadge status={offer.status} />
         </div>
         <div className="pointer-events-none absolute right-2 top-2 rounded-full bg-black/50 p-0.5 backdrop-blur">
-          <ScoreRing score={offer.score} size={38} />
+          <ActiveAdsRing count={ads} size={38} />
         </div>
         {offer.priorityPinned && (
           <div className="pointer-events-none absolute bottom-2 right-2 rounded-full bg-brand p-1 text-brand-fg">
@@ -107,6 +109,10 @@ export function OfferCard({
         <p className="line-clamp-1 text-xs text-muted">
           {offer.product || PLATFORM_LABELS[offer.platform]}
         </p>
+
+        <div className="mt-2">
+          <ActiveAdsBadge count={ads} />
+        </div>
 
         {offer.hook && (
           <p className="mt-2 line-clamp-2 text-sm text-fg/80">“{offer.hook}”</p>

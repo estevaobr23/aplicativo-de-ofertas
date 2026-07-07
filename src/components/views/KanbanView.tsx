@@ -3,8 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import type { Offer, OfferStatus } from "@/lib/types";
-import { OFFER_STATUSES, STATUS_LABELS, STATUS_COLORS } from "@/lib/types";
-import { Thumb, ScoreRing } from "../ui";
+import { OFFER_STATUSES, STATUS_LABELS, STATUS_COLORS, activeAdsOf } from "@/lib/types";
+import { Thumb, ActiveAdsRing } from "../ui";
 import { IconStar } from "../icons";
 
 export function KanbanView({
@@ -83,7 +83,7 @@ export function KanbanView({
                         <span className="line-clamp-2">{o.name}</span>
                       </Link>
                     </div>
-                    <ScoreRing score={o.score} size={30} />
+                    <ActiveAdsRing count={activeAdsOf(o)} size={30} />
                   </div>
                   {o.tags.length > 0 && (
                     <div className="mt-1.5 flex flex-wrap gap-1">

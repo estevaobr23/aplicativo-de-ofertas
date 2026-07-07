@@ -47,14 +47,20 @@ export const repository = {
 
   async createOffer(draft: OfferDraft): Promise<Offer> {
     const ts = now();
+    const { activeAds, ...rest } = draft;
+    // Se informado no cadastro, vira o primeiro registro de contagem.
+    const adChecks =
+      activeAds != null && activeAds >= 0
+        ? [{ id: nanoid(), at: ts, activeAds, source: "manual" as const }]
+        : [];
     const base: Offer = {
-      ...draft,
+      ...rest,
       id: nanoid(),
       attachments: draft.attachments ?? [],
       createdAt: ts,
       updatedAt: ts,
       score: 0,
-      adChecks: [],
+      adChecks,
       history: [{ id: nanoid(), at: ts, message: "Oferta criada" }],
     };
     base.score = computeScore(base);

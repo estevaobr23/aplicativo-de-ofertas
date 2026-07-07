@@ -10,6 +10,58 @@ import {
   type LandingPageType,
 } from "@/lib/types";
 
+// Badge destacado com o número de anúncios ativos.
+export function ActiveAdsBadge({
+  count,
+  className = "",
+}: {
+  count: number;
+  className?: string;
+}) {
+  const active = count > 0;
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${className}`}
+      style={{
+        backgroundColor: active ? "#22c55e22" : "rgb(var(--surface-2))",
+        color: active ? "#16a34a" : "rgb(var(--muted))",
+      }}
+      title="Anúncios ativos escalados"
+    >
+      <span>🔥</span>
+      {count} {count === 1 ? "anúncio ativo" : "anúncios ativos"}
+    </span>
+  );
+}
+
+// Círculo com o número de anúncios ativos (substitui o antigo ScoreRing no card).
+export function ActiveAdsRing({
+  count,
+  size = 44,
+}: {
+  count: number;
+  size?: number;
+}) {
+  const active = count > 0;
+  const color = active ? "#22c55e" : "#94a3b8";
+  return (
+    <div
+      className="grid place-items-center rounded-full font-bold"
+      style={{
+        width: size,
+        height: size,
+        backgroundColor: `${color}22`,
+        color,
+        fontSize: size * 0.34,
+        border: `2px solid ${color}`,
+      }}
+      title={`${count} anúncios ativos`}
+    >
+      {count}
+    </div>
+  );
+}
+
 export function StatusBadge({ status }: { status: OfferStatus }) {
   const color = STATUS_COLORS[status];
   return (
